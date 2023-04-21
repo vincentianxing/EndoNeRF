@@ -748,7 +748,7 @@ def train():
     args = parser.parse_args()
 
     # Load data
-
+    print("train, load data")
     if args.dataset_type == 'blender':
         raise NotImplementedError
 

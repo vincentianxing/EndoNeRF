@@ -4,7 +4,8 @@ torch.autograd.set_detect_anomaly(True)
 import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
-from torchsearchsorted import searchsorted
+from torchsearchsorted import searchsorted # This is deprecated
+# import torch.searchsorted
 
 
 # Misc

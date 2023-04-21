@@ -1,6 +1,6 @@
 expname = example_training
 basedir = ./logs
-datadir = /path/to/data/
+datadir = ../endonerf_data
 dataset_type = llff
 
 factor = 1
