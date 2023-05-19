@@ -98,7 +98,7 @@ class PointCloudSequenceVisualizer:
                     self.frame_idx = len(self.pcd_list) - 1
                 else:
                     self.frame_idx = 0
-            
+
             self._update_camera_movement()
 
         return True
@@ -117,6 +117,7 @@ class PointCloudSequenceVisualizer:
     def _reset_cam_pose(self):
         ctr = self.vis.get_view_control()
         init_param = ctr.convert_to_pinhole_camera_parameters()
+        init_param = ctr
         init_param.extrinsic = np.array([[1.0, 0, 0, 0], [0, 1.0, 0, 0], [0, 0, 1.0, 0], [0, 0, 0, 1.0]])
         ctr.convert_from_pinhole_camera_parameters(init_param)
 
@@ -133,7 +134,7 @@ class PointCloudSequenceVisualizer:
             self.rec_buffer = []
 
             imageio.mimwrite(os.path.join(self.save_dir, 'rec_video.mp4'), to8b(frames), fps=self.rec_video_fps, quality=8)
-        
+
         if not self.recording:
             print('Recording stopped. Video saved.')
         else:
@@ -149,7 +150,7 @@ class PointCloudSequenceVisualizer:
         o3d.io.write_pinhole_camera_parameters(filename, param)
 
         return True
-    
+
     def _load_cam_pose(self):
         filename = input('Camera pose load path: ')
         param = o3d.io.read_pinhole_camera_parameters(filename)
@@ -162,7 +163,7 @@ class PointCloudSequenceVisualizer:
         ctr.convert_from_pinhole_camera_parameters(init_param)
 
         return True
-    
+
     def _capture_screenshot(self):
         filename = os.path.join(self.save_dir, 'frame_%s.png' % self.frame_idx)
         self.vis.capture_screen_image(filename, do_render=True)
@@ -175,25 +176,25 @@ class PointCloudSequenceVisualizer:
         if not self.loop and self.frame_idx == len(self.pcd_list) - 1:
             self.playing = False
             self.frame_idx = 0
-    
+
     def _next_frame(self):
         self.frame_idx += 1
 
         if self.frame_idx >= len(self.pcd_list):
             self.frame_idx = 0
-                
+
         self.stall_index = self.stall_count
-    
+
     def _prev_frame(self):
         self.frame_idx -= 1
 
         if self.frame_idx < 0:
             self.frame_idx = len(self.pcd_list) - 1
-        
+
         self.stall_index = self.stall_count
-    
+
     def run(self):
-        self._reset_cam_pose()
+        # self._reset_cam_pose()
 
         self.vis.run()
         self.vis.destroy_window()
@@ -201,16 +202,16 @@ class PointCloudSequenceVisualizer:
 
 if __name__ == '__main__':
     cfg_parser = configargparse.ArgumentParser()
-    cfg_parser.add_argument('--pc_dir', type=str, 
+    cfg_parser.add_argument('--pc_dir', type=str,
                         help='point clouds directory')
     cfg_parser.add_argument('--vis_stall', type=int, default=10,
                         help='control visualization speed (bigger => slower)')
     cfg_parser.add_argument('--data_format', type=str, default='n', choices=['n', 's'])
     cfg_parser.add_argument('--save_dir', type=str, default='./',
                         help='directory for saving screenshots')
-    cfg_parser.add_argument("--no_loop", action='store_true', 
+    cfg_parser.add_argument("--no_loop", action='store_true',
                         help='loop playing?')
-    cfg_parser.add_argument("--no_autoplay", action='store_true', 
+    cfg_parser.add_argument("--no_autoplay", action='store_true',
                         help='auto playing?')
     cfg_parser.add_argument('--rec_video_fps', type=int, default=30,
                         help='FPS of video recording')
@@ -237,6 +238,3 @@ if __name__ == '__main__':
 
     pc_vis = PointCloudSequenceVisualizer(pcd_list, cfg.vis_stall, cfg.save_dir, cfg.no_autoplay, cfg.no_loop, cfg.rec_video_fps, cfg.cam_move)
     pc_vis.run()
-
-    
-

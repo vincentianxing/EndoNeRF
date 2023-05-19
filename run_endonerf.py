@@ -86,7 +86,7 @@ def batchify_rays(rays_flat, chunk=1024*32, **kwargs):
 
     # if (torch.isnan(rays_flat).any() or torch.isinf(rays_flat).any()) and DEBUG:
     #     print(f"! [Numerical Error] rays_flat contains nan or inf.", flush=True)
-    
+
     all_ret = {}
     for i in range(0, rays_flat.shape[0], chunk):
         ret = render_rays(rays_flat[i:i+chunk], **kwargs)
@@ -117,7 +117,7 @@ def render(H, W, focal, chunk=1024*32, rays=None, c2w=None, ndc=True,
       near: float or array of shape [batch_size]. Nearest distance for a ray.
       far: float or array of shape [batch_size]. Farthest distance for a ray.
       use_viewdirs: bool. If True, use viewing direction of a point in space in model.
-      c2w_staticcam: array of shape [3, 4]. If not None, use this transformation matrix for 
+      c2w_staticcam: array of shape [3, 4]. If not None, use this transformation matrix for
        camera while using other c2w argument for viewing directions.
     Returns:
       rgb_map: [batch_size, 3]. Predicted RGB values for rays.
@@ -125,7 +125,7 @@ def render(H, W, focal, chunk=1024*32, rays=None, c2w=None, ndc=True,
       acc_map: [batch_size]. Accumulated opacity (alpha) along a ray.
       extras: dict with everything returned by render_rays().
     """
-    
+
     if c2w is not None:
         # special case to render full image
         rays_o, rays_d = get_rays(H, W, focal, c2w)
@@ -156,7 +156,7 @@ def render(H, W, focal, chunk=1024*32, rays=None, c2w=None, ndc=True,
     #     print(f"! [Numerical Error] rays_o in render 2 contains nan or inf.", flush=True)
     # if (torch.isnan(rays_d).any() or torch.isinf(rays_d).any()) and DEBUG:
     #     print(f"! [Numerical Error] rays_d in render 2 contains nan or inf.", flush=True)
-    
+
 
     # Create ray batch
     rays_o = torch.reshape(rays_o, [-1,3]).float()
@@ -216,17 +216,17 @@ def render_path(render_poses, render_times, hwf, chunk, render_kwargs, gt_imgs=N
             rgb8_estim = to8b(rgbs[-1])
             filename = os.path.join(save_dir_estim, '{:03d}.rgb.png'.format(i+i_offset))
             imageio.imwrite(filename, rgb8_estim)
-            
+
             if save_also_gt:
                 rgb8_gt = to8b(gt_imgs[i])
                 filename = os.path.join(save_dir_gt, '{:03d}.rgb.png'.format(i+i_offset))
                 imageio.imwrite(filename, rgb8_gt)
-            
+
             if save_depth:
                 depth_estim = (1.0 / (disps[-1] + 1e-6)) * (near_far[1] - near_far[0])
                 filename = os.path.join(save_dir_estim, '{:03d}.depth.npy'.format(i+i_offset))
                 np.save(filename, depth_estim)
-    
+
     rgbs = np.stack(rgbs, 0)
     disps = np.stack(disps, 0)
 
@@ -580,13 +580,13 @@ def config_parser():
 
     import configargparse
     parser = configargparse.ArgumentParser()
-    parser.add_argument('--config', is_config_file=True, 
+    parser.add_argument('--config', is_config_file=True,
                         help='config file path')
-    parser.add_argument("--expname", type=str, 
+    parser.add_argument("--expname", type=str,
                         help='experiment name')
-    parser.add_argument("--basedir", type=str, default='./logs/', 
+    parser.add_argument("--basedir", type=str, default='./logs/',
                         help='where to store ckpts and logs')
-    parser.add_argument("--datadir", type=str, default='./data/llff/fern', 
+    parser.add_argument("--datadir", type=str, default='./data/llff/fern',
                         help='input data directory')
 
     # training options
@@ -594,35 +594,35 @@ def config_parser():
                         help='nerf network type')
     parser.add_argument("--N_iter", type=int, default=100000,
                         help='num training iterations')
-    parser.add_argument("--netdepth", type=int, default=8, 
+    parser.add_argument("--netdepth", type=int, default=8,
                         help='layers in network')
-    parser.add_argument("--netwidth", type=int, default=256, 
+    parser.add_argument("--netwidth", type=int, default=256,
                         help='channels per layer')
-    parser.add_argument("--netdepth_fine", type=int, default=8, 
+    parser.add_argument("--netdepth_fine", type=int, default=8,
                         help='layers in fine network')
-    parser.add_argument("--netwidth_fine", type=int, default=256, 
+    parser.add_argument("--netwidth_fine", type=int, default=256,
                         help='channels per layer in fine network')
-    parser.add_argument("--N_rand", type=int, default=32*32*4, 
+    parser.add_argument("--N_rand", type=int, default=32*32*4,
                         help='batch size (number of random rays per gradient step)')
     parser.add_argument("--do_half_precision", action='store_true',
                         help='do half precision training and inference')
-    parser.add_argument("--lrate", type=float, default=5e-4, 
+    parser.add_argument("--lrate", type=float, default=5e-4,
                         help='learning rate')
-    parser.add_argument("--lrate_decay", type=int, default=250, 
+    parser.add_argument("--lrate_decay", type=int, default=250,
                         help='exponential learning rate decay (in 1000 steps)')
-    parser.add_argument("--chunk", type=int, default=1024*32, 
+    parser.add_argument("--chunk", type=int, default=1024*32,
                         help='number of rays processed in parallel, decrease if running out of memory')
-    parser.add_argument("--netchunk", type=int, default=1024*64, 
+    parser.add_argument("--netchunk", type=int, default=1024*64,
                         help='number of pts sent through network in parallel, decrease if running out of memory')
-    parser.add_argument("--no_batching", action='store_true', 
+    parser.add_argument("--no_batching", action='store_true',
                         help='only take random rays from 1 image at a time')
-    parser.add_argument("--no_reload", action='store_true', 
+    parser.add_argument("--no_reload", action='store_true',
                         help='do not reload weights from saved ckpt')
-    parser.add_argument("--ft_path", type=str, default=None, 
+    parser.add_argument("--ft_path", type=str, default=None,
                         help='specific weights npy file to reload for coarse network')
 
     # rendering options
-    parser.add_argument("--N_samples", type=int, default=64, 
+    parser.add_argument("--N_samples", type=int, default=64,
                         help='number of coarse samples per ray')
     parser.add_argument("--not_zero_canonical", action='store_true',
                         help='if set zero time is not the canonic space')
@@ -630,29 +630,29 @@ def config_parser():
                         help='number of additional fine samples per ray')
     parser.add_argument("--perturb", type=float, default=1.,
                         help='set to 0. for no jitter, 1. for jitter')
-    parser.add_argument("--use_viewdirs", action='store_true', 
+    parser.add_argument("--use_viewdirs", action='store_true',
                         help='use full 5D input instead of 3D')
     parser.add_argument("--i_embed", type=int, default=0,
                         help='set 0 for default positional encoding, -1 for none')
-    parser.add_argument("--multires", type=int, default=10, 
+    parser.add_argument("--multires", type=int, default=10,
                         help='log2 of max freq for positional encoding (3D location)')
-    parser.add_argument("--multires_views", type=int, default=4, 
+    parser.add_argument("--multires_views", type=int, default=4,
                         help='log2 of max freq for positional encoding (2D direction)')
-    parser.add_argument("--raw_noise_std", type=float, default=0., 
+    parser.add_argument("--raw_noise_std", type=float, default=0.,
                         help='std dev of noise added to regularize sigma_a output, 1e0 recommended')
     parser.add_argument("--use_two_models_for_fine", action='store_true',
                         help='use two models for fine results')
-                        
-    parser.add_argument("--time_window_size", type=int, default=3, 
+
+    parser.add_argument("--time_window_size", type=int, default=3,
                         help='the size of time window in recurrent temporal nerf')
-    parser.add_argument("--time_interval", type=float, default=-1, 
+    parser.add_argument("--time_interval", type=float, default=-1,
                         help='the time interval between two adjacent frames')
 
-    parser.add_argument("--render_only", action='store_true', 
+    parser.add_argument("--render_only", action='store_true',
                         help='do not optimize, reload weights and render out render_poses path')
-    parser.add_argument("--render_test", action='store_true', 
+    parser.add_argument("--render_test", action='store_true',
                         help='render the test set instead of render_poses path')
-    parser.add_argument("--render_factor", type=int, default=0, 
+    parser.add_argument("--render_factor", type=int, default=0,
                         help='downsampling factor to speed up rendering, set 4 or 8 for fast preview')
 
     # training trick options
@@ -681,49 +681,49 @@ def config_parser():
     parser.add_argument("--depth_loss_weight", type=float, default=1.0,
                         help='weight of depth loss')
     parser.add_argument("--no_depth_refine", action='store_true',
-                        help='disable depth refinement') 
+                        help='disable depth refinement')
     parser.add_argument("--depth_refine_period", type=int, default=4000,
-                        help='number of iters to refine depth maps') 
+                        help='number of iters to refine depth maps')
     parser.add_argument("--depth_refine_rounds", type=int, default=4,
-                        help='number of rounds of depth map refinement') 
+                        help='number of rounds of depth map refinement')
     parser.add_argument("--depth_refine_quantile", type=float, default=0.3,
-                        help='proportion of pixels to be updated during depth refinement')           
+                        help='proportion of pixels to be updated during depth refinement')
 
 
     # dataset options
-    parser.add_argument("--dataset_type", type=str, default='llff', 
+    parser.add_argument("--dataset_type", type=str, default='llff',
                         help='options: llff / blender / deepvoxels')
     parser.add_argument("--testskip", type=int, default=2,
                         help='will load 1/N images from test/val sets, useful for large datasets like deepvoxels')
     parser.add_argument("--davinci_endoscopic", action='store_true',
                         help='is Da Vinci endoscopic surgical fields?')
-    parser.add_argument("--skip_frames", nargs='+', type=int, default=[], 
+    parser.add_argument("--skip_frames", nargs='+', type=int, default=[],
                         help='skip frames for training')
 
     ## deepvoxels flags (unused)
-    parser.add_argument("--shape", type=str, default='greek', 
+    parser.add_argument("--shape", type=str, default='greek',
                         help='options : armchair / cube / greek / vase')
 
     ## blender flags (unused)
-    parser.add_argument("--white_bkgd", action='store_true', 
+    parser.add_argument("--white_bkgd", action='store_true',
                         help='set to render synthetic data on a white bkgd (always use for dvoxels)')
-    parser.add_argument("--half_res", action='store_true', 
+    parser.add_argument("--half_res", action='store_true',
                         help='load blender synthetic data at 400x400 instead of 800x800')
 
     ## llff flags
-    parser.add_argument("--factor", type=int, default=8, 
+    parser.add_argument("--factor", type=int, default=8,
                         help='downsample factor for LLFF images')
-    parser.add_argument("--no_ndc", action='store_true', 
+    parser.add_argument("--no_ndc", action='store_true',
                         help='do not use normalized device coordinates (set for non-forward facing scenes)')
-    parser.add_argument("--lindisp", action='store_true', 
+    parser.add_argument("--lindisp", action='store_true',
                         help='sampling linearly in disparity rather than depth')
-    parser.add_argument("--spherify", action='store_true', 
+    parser.add_argument("--spherify", action='store_true',
                         help='set for spherical 360 scenes')
-    parser.add_argument("--llffhold", type=int, default=8, 
+    parser.add_argument("--llffhold", type=int, default=8,
                         help='will take every 1/N images as LLFF test set, paper uses 8')
-    parser.add_argument("--llff_renderpath", type=str, default='spiral', 
+    parser.add_argument("--llff_renderpath", type=str, default='spiral',
                         help='options: spiral, fixidentity, zoom')
-                                                
+
     # logging/saving options
     parser.add_argument("--i_print",   type=int, default=1000,
                         help='frequency of console printout and metric loggin')
@@ -737,7 +737,7 @@ def config_parser():
                         help='frequency of render_poses video saving')
     parser.add_argument("--video_fps",  type=int, default=30,
                         help='FPS of render_poses video')
-    
+
 
     return parser
 
@@ -773,12 +773,12 @@ def train():
         # i_train = np.array([i for i in np.arange(int(images.shape[0])) if (i not in i_test and i not in i_val and i not in args.skip_frames)])  # leave out test/val frames
 
         print('DEFINING BOUNDS')
-        
+
         close_depth, inf_depth = np.ndarray.min(bds) * .9, np.ndarray.max(bds) * 1.
 
         if args.no_ndc:
             near = np.ndarray.min(bds) * .9
-            far = np.ndarray.max(bds) * 1.            
+            far = np.ndarray.max(bds) * 1.
         else:
             near = 0.
             far = 1.
@@ -899,7 +899,7 @@ def train():
         else:
             depth_maps = torch.Tensor(nerf_model_extras['depth_maps']).to(device)
 
-    
+
     # if use_batching:
     #     rays_rgb = torch.Tensor(rays_rgb).to(device)
 
@@ -913,13 +913,15 @@ def train():
         print('close depth:', close_depth, 'inf depth:', inf_depth)
 
     N_iters = args.N_iter + 1
+    print("N_iters:", N_iters)
     print('Begin')
 
     # Summary writers
     writer = SummaryWriter(os.path.join(basedir, 'summaries', expname))
-    
+
     start = start + 1
-    for i in trange(start, N_iters):
+    for i in trange(start, 1000):
+
         torch.cuda.empty_cache()
 
         ##### Sample random ray batch #####
@@ -969,7 +971,7 @@ def train():
                             torch.linspace(W//2 - dW, W//2 + dW - 1, 2*dW)
                         ), -1)
                     if i == start:
-                        print(f"[Config] Center cropping of size {2*dH} x {2*dW} is enabled until iter {args.precrop_iters}")                
+                        print(f"[Config] Center cropping of size {2*dH} x {2*dW} is enabled until iter {args.precrop_iters}")
                 else:
                     coords = torch.stack(torch.meshgrid(torch.linspace(0, H-1, H), torch.linspace(0, W-1, W)), -1)  # (H, W, 2)
 
@@ -981,7 +983,7 @@ def train():
                     select_inds = torch.max(torch.zeros_like(select_inds), select_inds)
                     select_inds = torch.min((coords.shape[0] - 1) * torch.ones_like(select_inds), select_inds)
                     select_inds = select_inds.squeeze(0)
-                    
+
                 select_coords = coords[select_inds].long()  # (N_rand, 2)
                 rays_o = rays_o[select_coords[:, 0], select_coords[:, 1]]  # (N_rand, 3)
                 rays_d = rays_d[select_coords[:, 0], select_coords[:, 1]]  # (N_rand, 3)
@@ -1036,7 +1038,7 @@ def train():
         if mask_s is not None:
             rgb = rgb * mask_s
             target_s = target_s * mask_s
-        
+
         img_loss = img2mse(rgb, target_s)
         psnr = mse2psnr(img_loss)
 
@@ -1090,7 +1092,7 @@ def train():
         refinement_round = i // args.depth_refine_period
         if not args.no_depth_refine and depth_maps is not None and i % args.depth_refine_period == 0 and refinement_round <= args.depth_refine_rounds:
             print('Render RGB and depth maps for refinement...')
-            
+
             refinement_save_path = os.path.join(basedir, expname, 'refinement{:04d}'.format(refinement_round))
             if not os.path.exists(refinement_save_path):
                 os.makedirs(refinement_save_path)

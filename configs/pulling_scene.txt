@@ -18,7 +18,7 @@ davinci_endoscopic=True
 use_fgmask=True
 use_depth=True
 depth_sampling_sigma=1.0
-depth_refine_period=4000
+depth_refine_period=1000
 depth_refine_quantile=0.1
 
 nerf_type = direct_temporal
@@ -28,5 +28,5 @@ not_zero_canonical = False
 i_print = 200
 i_testset = 50000
 i_weights = 4000
-i_video = 100000
+i_video = 10000
 video_fps = 10
